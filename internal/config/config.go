@@ -1,39 +1,38 @@
 package config
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
-	"os"
+	"time"
 
-	_ "github.com/go-sql-driver/mysql" // MySQL sürücüsünü yükler
-	"github.com/joho/godotenv"         // .env dosyasını yüklemek için kullanılır
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// ConnectDB, veritabanına bağlanmak için kullanılır ve bir *sql.DB döndürür
-func ConnectDB() (*sql.DB, error) {
-	err := godotenv.Load()
+var DB *mongo.Database
+
+func ConnectDB() {
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+
+	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
-		log.Println("No .env file found")
+		log.Fatal("Failed to create MongoDB client:", err)
 	}
 
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	dbname := os.Getenv("DB_NAME")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, dbname)
-
-	db, err := sql.Open("mysql", dsn)
+	err = client.Connect(ctx)
 	if err != nil {
-		return nil, err
+		log.Fatal("Failed to connect to MongoDB:", err)
 	}
 
-	if err := db.Ping(); err != nil {
-		return nil, err
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal("Failed to ping MongoDB:", err)
 	}
 
-	log.Println("Connected to the database successfully!")
-	return db, nil
+	DB = client.Database("scooterdb")
+	fmt.Println("Connected to the database successfully!")
 }

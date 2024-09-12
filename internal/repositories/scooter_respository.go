@@ -1,42 +1,55 @@
 package repositories
 
 import (
+	"context"
+	"log"
 	"scoter-web-api/internal/config"
 	"scoter-web-api/internal/models"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GetAllScooters() ([]models.Scooter, error) {
-	db, err := config.ConnectDB()
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
+var scooterCollection *mongo.Collection
 
-	rows, err := db.Query("SELECT id, name, latitude, longitude, is_active FROM scooters")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+func InitScooterRepository() {
+	scooterCollection = config.DB.Collection("scooters")
+}
+
+func GetAllScooters() ([]models.Scooter, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	var scooters []models.Scooter
-	for rows.Next() {
+	cursor, err := scooterCollection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Println("Error fetching scooters:", err)
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
 		var scooter models.Scooter
-		if err := rows.Scan(&scooter.ID, &scooter.Name, &scooter.Latitude, &scooter.Longitude, &scooter.IsActive); err != nil {
+		if err := cursor.Decode(&scooter); err != nil {
+			log.Println("Error decoding scooter:", err)
 			return nil, err
 		}
 		scooters = append(scooters, scooter)
 	}
+
 	return scooters, nil
 }
 
 func CreateScooter(scooter *models.Scooter) error {
-	db, err := config.ConnectDB()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := scooterCollection.InsertOne(ctx, scooter)
 	if err != nil {
+		log.Println("Error creating scooter:", err)
 		return err
 	}
-	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO scooters (name, latitude, longitude, is_active) VALUES (?, ?, ?, ?)",
-		scooter.Name, scooter.Latitude, scooter.Longitude, scooter.IsActive)
-	return err
+	return nil
 }
