@@ -2,12 +2,14 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"log"
 	"scoter-web-api/internal/config"
 	"scoter-web-api/internal/models"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -49,6 +51,52 @@ func CreateScooter(scooter *models.Scooter) error {
 	if err != nil {
 		log.Println("Error creating scooter:", err)
 		return err
+	}
+
+	return nil
+}
+
+func UpdateScooterLocation(id string, latitude float64, longitude float64) error {
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	filter := bson.M{"_id": objectID}
+	update := bson.M{"$set": bson.M{
+		"latitude":  latitude,
+		"longitude": longitude,
+	}}
+	result, err := scooterCollection.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		log.Println("Error updating scooter location:", err)
+		return err
+	}
+
+	if result.ModifiedCount == 0 {
+		return errors.New("No scooter found to update")
+	}
+
+	return nil
+}
+
+func UpdateScooterStatus(id string, isActive bool) error {
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	filter := bson.M{"_id": objectID}
+	update := bson.M{"$set": bson.M{"is_active": isActive}}
+
+	result, err := scooterCollection.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		log.Println("Error updating scooter status: ", err)
+		return err
+	}
+
+	if result.ModifiedCount == 0 {
+		return errors.New("No scooter found to update")
 	}
 
 	return nil

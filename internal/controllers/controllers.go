@@ -31,3 +31,44 @@ func CreateScooter(c *fiber.Ctx) error {
 
 	return c.SendStatus(fiber.StatusCreated)
 }
+
+func UpdateScooterLocation(c *fiber.Ctx) error {
+	type Request struct {
+		Latitude  float64 `json:"latitude"`
+		Longitude float64 `json:"longitude"`
+	}
+
+	id := c.Params("id")
+
+	var request Request
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+	}
+
+	err := repositories.UpdateScooterLocation(id, request.Latitude, request.Longitude)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update scooter location"})
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func UpdateScooterStatus(c *fiber.Ctx) error {
+	type Request struct {
+		IsActive bool `json:"is_active"`
+	}
+
+	id := c.Params("id")
+
+	var request Request
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+	}
+
+	err := repositories.UpdateScooterStatus(id, request.IsActive)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update scooter status"})
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
