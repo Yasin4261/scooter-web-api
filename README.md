@@ -20,16 +20,16 @@ Bu proje, scooter kiralama işlemlerini yönetmek için bir RESTful API'dir. Go 
    cd scoter-web-api
 
 2. **Bağımlılıkları Yükleyin:**
-```bash
-go mod download
-```
+   ```bash
+   go mod download
+   ```
    
 4. **MongoDB'yi Başlatın:** MongoDB'yi kurun ve başlatın.
 
 5. **Uygulamayı Başlatın:**
-```bash
-go run cmd/api/main.go
-```
+   ```bash
+   go run cmd/api/main.go
+   ```
 
 Uygulama varsayılan olarak `http://localhost:8080` adresinde çalışacaktır.
 
