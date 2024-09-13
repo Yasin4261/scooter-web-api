@@ -4,27 +4,20 @@ import (
 	"context"
 	"errors"
 	"log"
-	"scoter-web-api/internal/config"
 	"scoter-web-api/internal/models"
+
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
-
-var scooterCollection *mongo.Collection
-
-func InitScooterRepository() {
-	scooterCollection = config.DB.Collection("scooters")
-}
 
 func GetAllScooters() ([]models.Scooter, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	var scooters []models.Scooter
-	cursor, err := scooterCollection.Find(ctx, bson.M{})
+	cursor, err := ScooterCollection.Find(ctx, bson.M{})
 	if err != nil {
 		log.Println("Error fetching scooters:", err)
 		return nil, err
@@ -47,7 +40,7 @@ func CreateScooter(scooter *models.Scooter) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	_, err := scooterCollection.InsertOne(ctx, scooter)
+	_, err := ScooterCollection.InsertOne(ctx, scooter)
 	if err != nil {
 		log.Println("Error creating scooter:", err)
 		return err
@@ -67,7 +60,7 @@ func UpdateScooterLocation(id string, latitude float64, longitude float64) error
 		"latitude":  latitude,
 		"longitude": longitude,
 	}}
-	result, err := scooterCollection.UpdateOne(context.TODO(), filter, update)
+	result, err := ScooterCollection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		log.Println("Error updating scooter location:", err)
 		return err
@@ -89,7 +82,7 @@ func UpdateScooterStatus(id string, isActive bool) error {
 	filter := bson.M{"_id": objectID}
 	update := bson.M{"$set": bson.M{"is_active": isActive}}
 
-	result, err := scooterCollection.UpdateOne(context.TODO(), filter, update)
+	result, err := ScooterCollection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		log.Println("Error updating scooter status: ", err)
 		return err

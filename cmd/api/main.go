@@ -10,13 +10,15 @@ import (
 )
 
 func main() {
-	config.ConnectDB()
+	db := config.ConnectDB()
 
-	repositories.InitScooterRepository() // Repository'yi başlatın.
+	repositories.InitRepositories(db) // Repository'yi başlatın.
 
 	app := fiber.New()
 
-	routes.SetupRoutes(app)
+	routes.SetupRentalRoutes(app)
+	routes.SetupScooterRoutes(app)
+	routes.SetupUserRoutes(app)
 
 	log.Fatal(app.Listen(":8080"))
 }

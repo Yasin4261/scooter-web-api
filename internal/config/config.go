@@ -12,7 +12,7 @@ import (
 
 var DB *mongo.Database
 
-func ConnectDB() {
+func ConnectDB() *mongo.Database {
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
 	client, err := mongo.NewClient(clientOptions)
@@ -35,4 +35,6 @@ func ConnectDB() {
 
 	DB = client.Database("scooterdb")
 	fmt.Println("Connected to the database successfully!")
+
+	return DB
 }
