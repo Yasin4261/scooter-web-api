@@ -37,15 +37,15 @@ Uygulama varsayılan olarak `http://localhost:8080` adresinde çalışacaktır.
 ## API Kullanımı
 
 ### Scooter API
-- **GET** `/scooters:` Tüm scooter'ları listeleyin.
-- **POST** `/scooters:` Yeni scooter ekleyin.
-- **PATCH** `/scooters/{id}/location:` Scooter konumunu güncelleyin.
-- **PATCH** `/scooters/{id}/status:` Scooter durumunu güncelleyin.
+- **GET** `/scooters`: Tüm scooter'ları listeleyin.
+- **POST** `/scooters`: Yeni scooter ekleyin.
+- **PATCH** `/scooters/{id}/location`: Scooter konumunu güncelleyin.
+- **PATCH** `/scooters/{id}/status`: Scooter durumunu güncelleyin.
 
 ### Rental API
-- **POST** `/rentals:` Kiralama işlemini başlatın.
-- **GET** `/rentals/user/{user_id}:` Kullanıcının kiralamalarını listeleyin.
-- **PATCH** `/rentals/{id}/complete:` Kiralamayı tamamlayın.
+- **POST** `/rentals`: Kiralama işlemini başlatın.
+- **GET** `/rentals/user/{user_id}`: Kullanıcının kiralamalarını listeleyin.
+- **PATCH** `/rentals/{id}/complete`: Kiralamayı tamamlayın.
 
 ### Katkıda Bulunanlar
 [Yasin Güneş](https://github.com/Yasin4261)
